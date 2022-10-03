@@ -102,8 +102,10 @@ async function start() {
                 await updateConfig();
                 help.log("UPDATED LAST TOKEN", req.headers.authorization, req.body);
             }
+            else {
+                help.log("UPDATE ERROR", req.headers, req.body);
+            }
 
-            help.log("???", req.headers, req.body);
 
             syncFiles();
 
