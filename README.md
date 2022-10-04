@@ -11,7 +11,7 @@ copy config.json.example to config.json, and change the password
 
 move all of your images into private/
 
-move all of your jsons into private/json/, everything is expected to be named number.file, and formats do, and remember to update the metadata image url accordingly
+move all of your jsons into private/json/, everything is expected to be named number.file, and formats do, and remember to update the metadata image url accordingly 
 
 ## run
 
@@ -28,3 +28,11 @@ curl -d "{\"lastTokenId\":333}" -H "Content-Type: application/json" -H "Authoriz
 ```
 
 replace 333 with your last token id, password with your password, and put your url instead of localhost
+
+## Image location update tool
+
+```bash
+node updateImageLocInJsons.js "somewebsite.xyz/nft/<ID>.png"
+```
+
+<ID> will be replaced with the number in the json's filename, it's just a dumb replacement so something like \<ID-1\> is not going to work
