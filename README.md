@@ -36,3 +36,13 @@ node updateImageLocInJsons.js "somewebsite.xyz/nft/<ID>.png"
 ```
 
 <ID> will be replaced with the number in the json's filename, it's just a dumb replacement so something like \<ID-1\> is not going to work
+
+TODO: ?make normal server work like unrevealed server and derive url from request to make this step unnecessary 
+
+## Unrevealed server
+
+returns generic metadata and points to the same image for any request
+
+```bash
+node indexUnrevealed.js
+```
