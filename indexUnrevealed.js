@@ -23,7 +23,7 @@ async function start() {
     //app.set('trust proxy', 1); // Remove if NOT behind a reverse proxy
 
     // get json
-    app.route('/json/:id.json').get(async (req, res) => {
+    app.route('/json/:id').get(async (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         try {
             let newJson = Object.assign({},templateJson);
@@ -34,7 +34,7 @@ async function start() {
             newJson.image = currentUrl + newJson.image;//req.params.id;
             res.send(JSON.stringify(newJson));
         } catch (error) {
-            help.log(error, req.ip, req.headers.authorization);
+            help.log(error, req.ip);
             genericReturnFalse(res);
         }
     });

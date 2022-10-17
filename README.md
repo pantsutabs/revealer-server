@@ -31,17 +31,18 @@ replace 333 with your last token id, password with your password, and put your u
 
 ## Image location update tool
 
+This is handy but not necessary, the revealer will update the image link to the current url and the current structure
+
 ```bash
 node updateImageLocInJsons.js "somewebsite.xyz/nft/<ID>.png"
 ```
 
 <ID> will be replaced with the number in the json's filename, it's just a dumb replacement so something like \<ID-1\> is not going to work
 
-TODO: ?make normal server work like unrevealed server and derive url from request to make this step unnecessary 
-
-## Unrevealed server
+## Unrevealed server (deprecated)
 
 returns generic metadata and points to the same image for any request
+the normal server already serves this purpose though, with a lastTokenId of -1
 
 ```bash
 node indexUnrevealed.js

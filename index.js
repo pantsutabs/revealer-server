@@ -11,6 +11,8 @@ async function genericReturnFalse(res) {
 }
 
 let config;
+let templateJson;
+let templateJsonImageParsed = false;
 
 async function syncFiles() {
     help.log("SYNCING FILES");
@@ -81,6 +83,13 @@ async function updateConfig() {
     await help.saveJson('./config.json', config);
 }
 
+function getCurrentUrl(req, truncParts) {
+    let currentUrl = (req.protocol + '://' + req.get('host') + req.originalUrl).split('/');
+    currentUrl.splice(currentUrl.length-truncParts,truncParts); // this truncates the /json/:id part
+    currentUrl = currentUrl.join('/');
+    return currentUrl;
+}
+
 async function start() {
     app.use(helmet());
     app.use(express.json({ limit: '100kb' })); // to support JSON-encoded bodies, limit is optional and 100kb is default, it limits how big a body can be, It is probably better to also implement via nginx
@@ -89,7 +98,7 @@ async function start() {
     // Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc) - We probably will be in production, this is very important for the rate limiter, although an nginx rate limiter is definitely a better idea
     // What this does is primarily pass a user's IP through nginx, irrelevant here
     // see https://expressjs.com/en/guide/behind-proxies.html
-    //app.set('trust proxy', 1); // Remove if NOT behind a reverse proxy
+    app.set('trust proxy', 1); // Remove if NOT behind a reverse proxy
 
     // post
     app.route('/api/post/updateLastTokenId/').post(async (req, res) => {
@@ -118,9 +127,49 @@ async function start() {
         }
     });
 
+    let getJson = async (req, res) => {
+        res.setHeader('Content-Type', 'application/json');
+        try {
+            if(!templateJsonImageParsed) {
+                templateJsonImageParsed = true;
+                templateJson.image = getCurrentUrl(req,2) + templateJson.image;
+            }
+            if(!Number.parseInt(req.params.id)) {
+                genericReturnFalse(res);
+                return;
+            }
+
+            let paramsId = Number.parseInt(req.params.id);
+            let jsonTemp = Object.assign({},templateJson);
+            let jsonRes = jsonTemp; 
+
+            try {
+                jsonRes = await help.getJson('./public/json/' + paramsId + '.json');
+                jsonRes.image = getCurrentUrl(req,2) + "/" + paramsId + ".png";
+            }
+            catch (error) {
+                if(paramsId <= config.lastTokenId) {
+                    help.log('FAILED LOADING MINTED TOKEN DATA', error, req.ip);
+                    genericReturnFalse(res);
+                    return;
+                }
+            }
+
+            res.send(JSON.stringify(jsonRes));
+        } catch (error) {
+            help.log(error, req.ip);
+            genericReturnFalse(res);
+        }
+    }
+
+    app.route('/json/:id.json').get(getJson);
+    app.route('/json/:id').get(getJson);
+
     config = await help.getJson('./config.json');
 
     help.log("CONFIG:", config);
+
+    templateJson = await help.getJson('./public/json/0_unrevealed.json');
 
     await syncFiles();
     help.log("SYNCING DONE");

@@ -10,6 +10,9 @@ async function updateImageLocations() {
 
     for(let i=0; i<privateFiles.length; i++) {
         let fileName = privateFiles[i];
+        if(fileName == '0_unrevealed.json') {
+            continue;
+        }
         if (Number.isInteger(Number.parseInt(fileName.split('.')[0]))) {
             let file = await help.getJson(privateUrl + fileName);
             let fileNameNum = Number.parseInt(fileName.split('.')[0]);
@@ -23,6 +26,9 @@ async function updateImageLocations() {
     
     for(let i=0; i<publicFiles.length; i++) {
         let fileName = publicFiles[i];
+        if(fileName == '0_unrevealed.json') {
+            continue;
+        }
         if (Number.isInteger(Number.parseInt(fileName.split('.')[0]))) {
             let file = await help.getJson(publicUrl + fileName);
             let fileNameNum = Number.parseInt(fileName.split('.')[0]);
