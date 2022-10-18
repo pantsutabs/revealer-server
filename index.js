@@ -148,10 +148,15 @@ async function start() {
                 jsonRes.image = getCurrentUrl(req,2) + "/" + paramsId + ".png";
             }
             catch (error) {
+                // if should have token data but for some reason doesn't
                 if(paramsId <= config.lastTokenId) {
                     help.log('FAILED LOADING MINTED TOKEN DATA', error, req.ip);
                     genericReturnFalse(res);
                     return;
+                }
+                // otherwise it's probably not revealed/minted yet
+                else {
+                    jsonTemp.name = jsonTemp.name.split(':id').join(paramsId);
                 }
             }
 
