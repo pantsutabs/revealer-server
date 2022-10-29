@@ -6,11 +6,17 @@ This is a simple server that reveals NFTs as they mint
 npm install
 ```
 
-copy config.json.example to config.json, and change the password
+copy config.json.example to config.json, and update the RPC and contract address, if you want to reveal manually or delay the reveal, set autoRevealEnabled to false to disable automatic querying of supply
 
 move all of your images into private/, if your images aren't .png you will need to update the code, replace any instance of .png with .whatever in index.js
 
 move all of your jsons into private/json/, everything is expected to be named number.file
+
+## usage notes
+
+this works as intended if your NFTs are minted incrementally without gaps in their token IDs
+
+less important but the code also assumes your first token id is 1, and not 0, if it is 0 it will never reveal the last NFT, will require some minor adjustment
 
 ## run
 
@@ -19,16 +25,6 @@ node index.js
 ```
 
 it is meant to run as a service and not manually
-
-## how to reveal
-
-```bash
-curl -d "{\"lastTokenId\":333}" -H "Content-Type: application/json" -H "Authorization: password" -X POST http://localhost:3000/api/post/updateLastTokenId
-```
-
-Replace 333 with your last token id, password with your password, and put your url instead of localhost, or alternatively, change to config and restart the server
-
-TODO: This should happen automatically
 
 ## Image location update tool
 
@@ -47,3 +43,13 @@ Returns generic metadata and points to the same image for any request. The norma
 ```bash
 node indexUnrevealed.js
 ```
+
+## how to reveal (deprecated)
+
+NOTE: The endpoint is disabled, this is done automatically
+
+```bash
+curl -d "{\"lastTokenId\":333}" -H "Content-Type: application/json" -H "Authorization: password" -X POST http://localhost:3000/api/post/updateLastTokenId
+```
+
+Replace 333 with your last token id, password with your password, and put your url instead of localhost, or alternatively, change to config and restart the server

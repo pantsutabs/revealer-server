@@ -1,4 +1,6 @@
 {
     "lastTokenId": -1,
-    "authorization": "super secret password"
+    "autoRevealEnabled":true,
+    "rpc":"your rpc",
+    "contractAddress":"the contract address of your NFT, has to implement IERC721Enumerable"
 }

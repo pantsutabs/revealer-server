@@ -1,3 +1,4 @@
+const { ethers } = require("ethers");
 const express = require('express');
 const helmet = require('helmet');
 const help = require('./help.js');
@@ -13,6 +14,37 @@ async function genericReturnFalse(res) {
 let config;
 let templateJson;
 let templateJsonImageParsed = false;
+
+let provider;
+
+async function getTotalSupplyAndUpdate() {
+    try {
+        let totalSupply = (await new ethers.Contract(config.contractAddress,["function totalSupply() view returns (uint256)"],provider).totalSupply()).toNumber()
+
+        if (totalSupply > 0 && totalSupply > config.lastTokenId) {
+            config.lastTokenId = totalSupply;
+            await updateConfig();
+            help.log("UPDATED LAST TOKEN", totalSupply);
+            syncFiles();
+        }
+        else {
+            //help.log("NO TOKEN SUPPLY CHANGES");
+        }
+    } catch (error) {
+        
+    }
+}
+
+async function totalSupplyLoop() {
+    provider = new ethers.providers.JsonRpcProvider(config.rpc);
+
+    getTotalSupplyAndUpdate();
+
+    setInterval(async ()=> {
+        getTotalSupplyAndUpdate();
+    }, 300000)
+    
+}
 
 async function syncFiles() {
     help.log("SYNCING FILES");
@@ -101,7 +133,7 @@ async function start() {
     app.set('trust proxy', 1); // Remove if NOT behind a reverse proxy
 
     // post
-    app.route('/api/post/updateLastTokenId/').post(async (req, res) => {
+    /* app.route('/api/post/updateLastTokenId/').post(async (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         try {
             //req.body.lastTokenId, - the token to move up to
@@ -125,7 +157,7 @@ async function start() {
             help.log(error, req.ip, req.headers.authorization);
             genericReturnFalse(res);
         }
-    });
+    }); */
 
     let getJson = async (req, res) => {
         res.setHeader('Content-Type', 'application/json');
@@ -173,11 +205,18 @@ async function start() {
     config = await help.getJson('./config.json');
 
     help.log("CONFIG:", config);
+    
+    // sync files
+    await syncFiles();
+
+    help.log("SYNCING DONE");
+
+    // this starts an interval to check for total supply every 5 minutes
+    if(config.autoRevealEnabled) {
+        await totalSupplyLoop();
+    }
 
     templateJson = await help.getJson('./public/json/0_unrevealed.json');
-
-    await syncFiles();
-    help.log("SYNCING DONE");
 
     app.set('port', port);
     app.use('/', express.static(__dirname + '/public'));
