@@ -4,6 +4,7 @@ const { ethers } = require("ethers");
 const express = require('express');
 const helmet = require('helmet');
 const help = require('./help.js');
+const {extraRoutes} = require('./extra.js');
 const app = express();
 const port = 3000;
 
@@ -254,35 +255,15 @@ async function start() {
         }
     }
 
-    let getExtraFilesHtml = async (req, res) => {
-        res.setHeader("Content-Type", "text/html")
-        try {
-            let paramsId = Number.parseInt(req.params.id);
-            res.send(`
-            <html>
-            </html>
-
-            <body>
-                <div>
-                    <img style="width:20vmax" src="/${paramsId}.png">
-                    <img style="width:20vmax" src="/pfp/${paramsId}.png">
-
-                    <img style="width:20vmax" src="/xmas/${paramsId}.png">
-                    <img style="width:20vmax" src="/xmas_pfp/${paramsId}.png">
-                </div>
-            </body>
-            `);
-        } catch (error) {
-            help.log(error, req.ip);
-            genericReturnFalse(res);
-        }
-    }
-    app.route('/extra/:id').get(getExtraFilesHtml);
 
     app.route('/json/:id.json').get(getJson);
     app.route('/json/:id').get(getJson);
 
     config = await help.getJson('./config.json');
+    
+    if(config.extraRoutes) {
+        extraRoutes(app);
+    }
 
     help.log("CONFIG:", config);
 
