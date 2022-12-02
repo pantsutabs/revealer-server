@@ -2,5 +2,6 @@
     "lastTokenId": -1,
     "autoRevealEnabled":true,
     "rpc":"your rpc",
-    "contractAddress":"the contract address of your NFT, has to implement IERC721Enumerable"
+    "contractAddress":"the contract address of your NFT, has to implement IERC721Enumerable",
+    "extraPrivateFolders":[]
 }
